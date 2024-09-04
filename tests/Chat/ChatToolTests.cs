@@ -1,16 +1,14 @@
-﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using NUnit.Framework;
-using OpenAI.Chat;
-using OpenAI.TestFramework;
-using OpenAI.Tests.Utility;
-using System;
+﻿using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using NUnit.Framework;
+using OpenAI.Chat;
+using OpenAI.TestFramework;
+using OpenAI.Tests.Utility;
 
 namespace OpenAI.Tests.Chat;
 
