@@ -1,0 +1,412 @@
+{
+  "Entries": [
+    {
+      "RequestUri": "https://api.openai.com/v1/chat/completions",
+      "RequestMethod": "POST",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Authorization": "Sanitized",
+        "Content-Length": "919",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2",
+        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "x-ms-client-request-id": "Sanitized"
+      },
+      "RequestBody": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Can you guess my mood given that I'm currently located in Osaka?"
+          }
+        ],
+        "model": "gpt-4o-mini",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the current weather for a given city",
+              "name": "get_weather_for_city",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "city_name": {
+                    "type": "string",
+                    "description": "the name of a city, e.g. Johannesburg or Ho Chi Minh City."
+                  }
+                },
+                "required": [
+                  "city_name"
+                ]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the caller's mood for a given weather",
+              "name": "get_mood_for_weather",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "weather": {
+                    "type": "string",
+                    "description": "the current weather of where the caller is located, e.g. sunny or cloudy."
+                  }
+                },
+                "required": [
+                  "weather"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "StatusCode": 200,
+      "ResponseHeaders": {
+        "Alt-Svc": "h3=\":443\"",
+        "CF-Cache-Status": "DYNAMIC",
+        "CF-RAY": "8b3f71326bce642c-SJC",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Date": "Fri, 16 Aug 2024 06:42:04 GMT",
+        "openai-organization": "Sanitized",
+        "openai-processing-ms": "621",
+        "openai-version": "2020-10-01",
+        "Server": "cloudflare",
+        "Set-Cookie": [
+          "Sanitized",
+          "Sanitized"
+        ],
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+        "x-ratelimit-limit-requests": "30000",
+        "x-ratelimit-limit-tokens": "150000000",
+        "x-ratelimit-remaining-requests": "29999",
+        "x-ratelimit-remaining-tokens": "149999967",
+        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-reset-tokens": "0s",
+        "X-Request-ID": "Sanitized"
+      },
+      "ResponseBody": {
+        "id": "chatcmpl-9wkwtC2LQS85y7Cu9cBMoy1IyIda6",
+        "object": "chat.completion",
+        "created": 1723790523,
+        "model": "gpt-4o-mini-2024-07-18",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "id": "call_4NfrG7BI9hlAucm0AcVptXvX",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather_for_city",
+                    "arguments": "{\"city_name\":\"Osaka\"}"
+                  }
+                }
+              ],
+              "refusal": null
+            },
+            "logprobs": null,
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 124,
+          "completion_tokens": 18,
+          "total_tokens": 142
+        },
+        "system_fingerprint": "fp_48196bc67a"
+      }
+    },
+    {
+      "RequestUri": "https://api.openai.com/v1/chat/completions",
+      "RequestMethod": "POST",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Authorization": "Sanitized",
+        "Content-Length": "1192",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2",
+        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "x-ms-client-request-id": "Sanitized"
+      },
+      "RequestBody": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Can you guess my mood given that I'm currently located in Osaka?"
+          },
+          {
+            "tool_calls": [
+              {
+                "id": "call_4NfrG7BI9hlAucm0AcVptXvX",
+                "type": "function",
+                "function": {
+                  "name": "get_weather_for_city",
+                  "arguments": "{\"city_name\":\"Osaka\"}"
+                }
+              }
+            ],
+            "role": "assistant"
+          },
+          {
+            "tool_call_id": "call_4NfrG7BI9hlAucm0AcVptXvX",
+            "role": "tool",
+            "content": "rainy"
+          }
+        ],
+        "model": "gpt-4o-mini",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the current weather for a given city",
+              "name": "get_weather_for_city",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "city_name": {
+                    "type": "string",
+                    "description": "the name of a city, e.g. Johannesburg or Ho Chi Minh City."
+                  }
+                },
+                "required": [
+                  "city_name"
+                ]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the caller's mood for a given weather",
+              "name": "get_mood_for_weather",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "weather": {
+                    "type": "string",
+                    "description": "the current weather of where the caller is located, e.g. sunny or cloudy."
+                  }
+                },
+                "required": [
+                  "weather"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "StatusCode": 200,
+      "ResponseHeaders": {
+        "Alt-Svc": "h3=\":443\"",
+        "CF-Cache-Status": "DYNAMIC",
+        "CF-RAY": "8b3f7138d8e9251e-SJC",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Date": "Fri, 16 Aug 2024 06:42:05 GMT",
+        "openai-organization": "Sanitized",
+        "openai-processing-ms": "530",
+        "openai-version": "2020-10-01",
+        "Server": "cloudflare",
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+        "x-ratelimit-limit-requests": "30000",
+        "x-ratelimit-limit-tokens": "150000000",
+        "x-ratelimit-remaining-requests": "29999",
+        "x-ratelimit-remaining-tokens": "149999962",
+        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-reset-tokens": "0s",
+        "X-Request-ID": "Sanitized"
+      },
+      "ResponseBody": {
+        "id": "chatcmpl-9wkwueDWBp6zZDHFyH3BYommgcKG7",
+        "object": "chat.completion",
+        "created": 1723790524,
+        "model": "gpt-4o-mini-2024-07-18",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "id": "call_QEcRmf1yIo3G5Hu1SL8bDu5N",
+                  "type": "function",
+                  "function": {
+                    "name": "get_mood_for_weather",
+                    "arguments": "{\"weather\":\"rainy\"}"
+                  }
+                }
+              ],
+              "refusal": null
+            },
+            "logprobs": null,
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 154,
+          "completion_tokens": 18,
+          "total_tokens": 172
+        },
+        "system_fingerprint": "fp_48196bc67a"
+      }
+    },
+    {
+      "RequestUri": "https://api.openai.com/v1/chat/completions",
+      "RequestMethod": "POST",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Authorization": "Sanitized",
+        "Content-Length": "1463",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2",
+        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "x-ms-client-request-id": "Sanitized"
+      },
+      "RequestBody": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Can you guess my mood given that I'm currently located in Osaka?"
+          },
+          {
+            "tool_calls": [
+              {
+                "id": "call_4NfrG7BI9hlAucm0AcVptXvX",
+                "type": "function",
+                "function": {
+                  "name": "get_weather_for_city",
+                  "arguments": "{\"city_name\":\"Osaka\"}"
+                }
+              }
+            ],
+            "role": "assistant"
+          },
+          {
+            "tool_call_id": "call_4NfrG7BI9hlAucm0AcVptXvX",
+            "role": "tool",
+            "content": "rainy"
+          },
+          {
+            "tool_calls": [
+              {
+                "id": "call_QEcRmf1yIo3G5Hu1SL8bDu5N",
+                "type": "function",
+                "function": {
+                  "name": "get_mood_for_weather",
+                  "arguments": "{\"weather\":\"rainy\"}"
+                }
+              }
+            ],
+            "role": "assistant"
+          },
+          {
+            "tool_call_id": "call_QEcRmf1yIo3G5Hu1SL8bDu5N",
+            "role": "tool",
+            "content": "bored"
+          }
+        ],
+        "model": "gpt-4o-mini",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the current weather for a given city",
+              "name": "get_weather_for_city",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "city_name": {
+                    "type": "string",
+                    "description": "the name of a city, e.g. Johannesburg or Ho Chi Minh City."
+                  }
+                },
+                "required": [
+                  "city_name"
+                ]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "description": "gets the caller's mood for a given weather",
+              "name": "get_mood_for_weather",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "weather": {
+                    "type": "string",
+                    "description": "the current weather of where the caller is located, e.g. sunny or cloudy."
+                  }
+                },
+                "required": [
+                  "weather"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "StatusCode": 200,
+      "ResponseHeaders": {
+        "Alt-Svc": "h3=\":443\"",
+        "CF-Cache-Status": "DYNAMIC",
+        "CF-RAY": "8b3f713d9bd8251e-SJC",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Date": "Fri, 16 Aug 2024 06:42:05 GMT",
+        "openai-organization": "Sanitized",
+        "openai-processing-ms": "496",
+        "openai-version": "2020-10-01",
+        "Server": "cloudflare",
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+        "x-ratelimit-limit-requests": "30000",
+        "x-ratelimit-limit-tokens": "150000000",
+        "x-ratelimit-remaining-requests": "29999",
+        "x-ratelimit-remaining-tokens": "149999960",
+        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-reset-tokens": "0s",
+        "X-Request-ID": "Sanitized"
+      },
+      "ResponseBody": {
+        "id": "chatcmpl-9wkwvmdQ9HGqcPRyKwFs7dOBIU8MU",
+        "object": "chat.completion",
+        "created": 1723790525,
+        "model": "gpt-4o-mini-2024-07-18",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Given that it's rainy in Osaka, your mood might be feeling bored.",
+              "refusal": null
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 185,
+          "completion_tokens": 15,
+          "total_tokens": 200
+        },
+        "system_fingerprint": "fp_48196bc67a"
+      }
+    }
+  ],
+  "Variables": {
+    "RandomSeed": "1384090945"
+  }
+}

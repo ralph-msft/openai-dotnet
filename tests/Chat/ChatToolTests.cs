@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using OpenAI.Chat;
+using OpenAI.TestFramework;
 using OpenAI.Tests.Utility;
 using System;
 using System.ClientModel;
@@ -8,15 +9,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using static OpenAI.Tests.TestHelpers;
 
 namespace OpenAI.Tests.Chat;
 
-[TestFixture(true)]
-[TestFixture(false)]
-[Parallelizable(ParallelScope.All)]
 [Category("Chat")]
-public partial class ChatToolTests : SyncAsyncTestBase
+public partial class ChatToolTests : OpenAiTestBase
 {
     public ChatToolTests(bool isAsync) : base(isAsync)
     {
@@ -122,10 +119,10 @@ public partial class ChatToolTests : SyncAsyncTestBase
             """)
     );
 
-    [Test]
+    [RecordedTest]
     public async Task ConstraintsWork()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [new UserChatMessage("What's the number for the word 'banana'?")];
 
         foreach (var (choice, reason) in new (ChatToolChoice, ChatFinishReason)[]
@@ -142,25 +139,21 @@ public partial class ChatToolTests : SyncAsyncTestBase
                 Tools = { s_numberForWordTool },
                 ToolChoice = choice,
             };
-            ClientResult<ChatCompletion> result = IsAsync
-                ? await client.CompleteChatAsync(messages, options)
-                : client.CompleteChat(messages, options);
+            ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
             Assert.That(result.Value.FinishReason, Is.EqualTo(reason));
         }
     }
 
-    [Test]
+    [RecordedTest]
     public async Task NoParameterToolWorks()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         ICollection<ChatMessage> messages = [new UserChatMessage("What's my favorite color?")];
         ChatCompletionOptions options = new()
         {
             Tools = { s_getFavoriteColorTool },
         };
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.ToolCalls));
         Assert.That(result.Value.ToolCalls.Count, Is.EqualTo(1));
@@ -172,18 +165,16 @@ public partial class ChatToolTests : SyncAsyncTestBase
 
         messages.Add(new AssistantChatMessage(result.Value));
         messages.Add(new ToolChatMessage(toolCall.Id, "green"));
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.Stop));
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("green"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task ParametersWork()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         ChatCompletionOptions options = new()
         {
             Tools = { s_getFavoriteColorForMonthTool },
@@ -192,9 +183,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
         [
             new UserChatMessage("What's my favorite color in February?"),
         ];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.ToolCalls));
         Assert.That(result.Value.ToolCalls?.Count, Is.EqualTo(1));
         var toolCall = result.Value.ToolCalls[0];
@@ -205,16 +194,14 @@ public partial class ChatToolTests : SyncAsyncTestBase
         Assert.That(argumentsJson["month_name"].ToString().ToLowerInvariant(), Is.EqualTo("february"));
         messages.Add(new AssistantChatMessage(result.Value));
         messages.Add(new ToolChatMessage(toolCall.Id, "chartreuse"));
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("chartreuse"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task FunctionsWork()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         ChatCompletionOptions options = new()
         {
             Functions = { s_getFavoriteColorForMonthFunction },
@@ -223,9 +210,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
         [
             new UserChatMessage("What's my favorite color in February?"),
         ];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.FunctionCall));
         var functionCall = result.Value.FunctionCall;
         Assert.That(functionCall, Is.Not.Null);
@@ -238,16 +223,14 @@ public partial class ChatToolTests : SyncAsyncTestBase
 #pragma warning disable CS0618
         messages.Add(new FunctionChatMessage(GetFavoriteColorForMonthFunctionName, "chartreuse"));
 #pragma warning restore CS0618
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("chartreuse"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task ParallelToolCalls()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         ChatCompletionOptions options = new()
         {
             Tools = { s_getWeatherForCityTool },
@@ -255,9 +238,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
         List<ChatMessage> messages = [
             new UserChatMessage("Tell me what's the current weather in the following cities: Santiago and Karachi."),
         ];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.ToolCalls));
         Assert.That(result.Value.ToolCalls.Count, Is.EqualTo(2));
@@ -279,19 +260,17 @@ public partial class ChatToolTests : SyncAsyncTestBase
         messages.Add(new ToolChatMessage(santiagoToolCall.Id, "rainy"));
         messages.Add(new ToolChatMessage(karachiToolCall.Id, "sunny"));
 
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.FinishReason, Is.EqualTo(ChatFinishReason.Stop));
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("rainy"));
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("sunny"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task ConsecutiveToolCalls()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         ChatCompletionOptions options = new()
         {
             Tools = { s_getWeatherForCityTool, s_getMoodForWeatherTool },
@@ -299,9 +278,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
         List<ChatMessage> messages = [
             new UserChatMessage("Can you guess my mood given that I'm currently located in Osaka?"),
         ];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.ToolCalls?.Count, Is.EqualTo(1));
         var toolCall = result.Value.ToolCalls[0];
@@ -314,9 +291,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
 
         messages.Add(new AssistantChatMessage(result.Value));
         messages.Add(new ToolChatMessage(toolCall.Id, "rainy"));
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.ToolCalls?.Count, Is.EqualTo(1));
         toolCall = result.Value.ToolCalls[0];
@@ -329,9 +304,7 @@ public partial class ChatToolTests : SyncAsyncTestBase
 
         messages.Add(new AssistantChatMessage(result.Value));
         messages.Add(new ToolChatMessage(toolCall.Id, "bored"));
-        result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        result = await client.CompleteChatAsync(messages, options);
 
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("bored"));
     }

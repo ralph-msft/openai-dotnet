@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 using OpenAI.Chat;
+using OpenAI.TestFramework;
 using OpenAI.Tests.Utility;
 using System;
 using System.ClientModel;
@@ -12,19 +13,16 @@ using System.Threading.Tasks;
 
 namespace OpenAI.Tests.Chat;
 
-[TestFixture(true)]
-[TestFixture(false)]
+[TestFixture]
 [Parallelizable(ParallelScope.All)]
 [Category("Chat")]
 [Category("Smoke")]
-public partial class ChatSmokeTests : SyncAsyncTestBase
+public class ChatSmokeTests
 {
-    public ChatSmokeTests(bool isAsync) : base(isAsync)
-    {
-    }
-
     [Test]
-    public async Task SmokeTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task SmokeTest(bool isAsync)
     {
         string mockResponseId = Guid.NewGuid().ToString();
         long mockCreated = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -57,7 +55,7 @@ public partial class ChatSmokeTests : SyncAsyncTestBase
         };
         ChatClient client = new("model_name_replaced", new ApiKeyCredential("sk-not-a-real-key"), options);
 
-        ChatCompletion completion = IsAsync
+        ChatCompletion completion = isAsync
             ? await client.CompleteChatAsync(["Mock me!"])
             : client.CompleteChat(["Mock me!"]);
 
@@ -99,29 +97,6 @@ public partial class ChatSmokeTests : SyncAsyncTestBase
             });
             Assert.That(chatClient, Is.Not.Null);
         }
-    }
-
-    [Test]
-    public void AuthFailureStreaming()
-    {
-        string fakeApiKey = "not-a-real-key-but-should-be-sanitized";
-        ChatClient client = new("gpt-4o-mini", new ApiKeyCredential(fakeApiKey));
-        Exception caughtException = null;
-        try
-        {
-            foreach (var _ in client.CompleteChatStreaming(
-                [new UserChatMessage("Uh oh, this isn't going to work with that key")]))
-            { }
-        }
-        catch (Exception ex)
-        {
-            caughtException = ex;
-        }
-        var clientResultException = caughtException as ClientResultException;
-        Assert.That(clientResultException, Is.Not.Null);
-        Assert.That(clientResultException.Status, Is.EqualTo((int)HttpStatusCode.Unauthorized));
-        Assert.That(clientResultException.Message, Does.Contain("API key"));
-        Assert.That(clientResultException.Message, Does.Not.Contain(fakeApiKey));
     }
 
     [Test]

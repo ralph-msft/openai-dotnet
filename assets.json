@@ -1,0 +1,6 @@
+{
+  "AssetsRepo": "openai/openai-dotnet",
+  "AssetsRepoPrefixPath": "net",
+  "TagPrefix": "net/openai/OpenAI",
+  "Tag": ""
+}

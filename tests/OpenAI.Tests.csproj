@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <!--Ignore XML doc comments on test types and members-->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <LangVersion>latest</LangVersion>
+    <TestProxyVersion>1.0.0-dev.20240619.2</TestProxyVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\OpenAI.csproj" />
@@ -14,5 +15,17 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="[4.18.2]" />
+    <PackageDownload Include="Azure.Sdk.Tools.Testproxy" Version="[$(TestProxyVersion)]" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="OpenAI.TestFramework">
+      <HintPath>..\external\OpenAI.TestFramework\net8.0\OpenAI.TestFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>TestProxyPath</_Parameter1>
+      <_Parameter2>$(NuGetPackageRoot)\azure.sdk.tools.testproxy\$(TestProxyVersion)\tools\net6.0\any\Azure.Sdk.Tools.TestProxy.dll</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>

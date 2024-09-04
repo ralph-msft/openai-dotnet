@@ -1,0 +1,197 @@
+{
+  "Entries": [
+    {
+      "RequestUri": "https://api.openai.com/v1/chat/completions",
+      "RequestMethod": "POST",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Authorization": "Sanitized",
+        "Content-Length": "490",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2",
+        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "x-ms-client-request-id": "Sanitized"
+      },
+      "RequestBody": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's my favorite color in February?"
+          }
+        ],
+        "model": "gpt-4o-mini",
+        "functions": [
+          {
+            "description": "gets the caller's favorite color for a given month",
+            "name": "get_favorite_color_for_month",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "month_name": {
+                  "type": "string",
+                  "description": "the name of a calendar month, e.g. February or October."
+                }
+              },
+              "required": [
+                "month_name"
+              ]
+            }
+          }
+        ]
+      },
+      "StatusCode": 200,
+      "ResponseHeaders": {
+        "Alt-Svc": "h3=\":443\"",
+        "CF-Cache-Status": "DYNAMIC",
+        "CF-RAY": "8b3f714e6dfb251e-SJC",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Date": "Fri, 16 Aug 2024 06:42:08 GMT",
+        "openai-organization": "Sanitized",
+        "openai-processing-ms": "345",
+        "openai-version": "2020-10-01",
+        "Server": "cloudflare",
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+        "x-ratelimit-limit-requests": "30000",
+        "x-ratelimit-limit-tokens": "150000000",
+        "x-ratelimit-remaining-requests": "29999",
+        "x-ratelimit-remaining-tokens": "149999973",
+        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-reset-tokens": "0s",
+        "X-Request-ID": "Sanitized"
+      },
+      "ResponseBody": {
+        "id": "chatcmpl-9wkwx1DoIfuXNFaPrZP2B2WEO7I4M",
+        "object": "chat.completion",
+        "created": 1723790527,
+        "model": "gpt-4o-mini-2024-07-18",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "function_call": {
+                "name": "get_favorite_color_for_month",
+                "arguments": "{\"month_name\":\"February\"}"
+              },
+              "refusal": null
+            },
+            "logprobs": null,
+            "finish_reason": "function_call"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 75,
+          "completion_tokens": 19,
+          "total_tokens": 94
+        },
+        "system_fingerprint": "fp_48196bc67a"
+      }
+    },
+    {
+      "RequestUri": "https://api.openai.com/v1/chat/completions",
+      "RequestMethod": "POST",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Authorization": "Sanitized",
+        "Content-Length": "708",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2",
+        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "x-ms-client-request-id": "Sanitized"
+      },
+      "RequestBody": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's my favorite color in February?"
+          },
+          {
+            "function_call": {
+              "arguments": "{\"month_name\":\"February\"}",
+              "name": "get_favorite_color_for_month"
+            },
+            "role": "assistant"
+          },
+          {
+            "name": "get_favorite_color_for_month",
+            "role": "function",
+            "content": "chartreuse"
+          }
+        ],
+        "model": "gpt-4o-mini",
+        "functions": [
+          {
+            "description": "gets the caller's favorite color for a given month",
+            "name": "get_favorite_color_for_month",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "month_name": {
+                  "type": "string",
+                  "description": "the name of a calendar month, e.g. February or October."
+                }
+              },
+              "required": [
+                "month_name"
+              ]
+            }
+          }
+        ]
+      },
+      "StatusCode": 200,
+      "ResponseHeaders": {
+        "Alt-Svc": "h3=\":443\"",
+        "CF-Cache-Status": "DYNAMIC",
+        "CF-RAY": "8b3f7151ff99251e-SJC",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Date": "Fri, 16 Aug 2024 06:42:09 GMT",
+        "openai-organization": "Sanitized",
+        "openai-processing-ms": "811",
+        "openai-version": "2020-10-01",
+        "Server": "cloudflare",
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+        "x-ratelimit-limit-requests": "30000",
+        "x-ratelimit-limit-tokens": "150000000",
+        "x-ratelimit-remaining-requests": "29999",
+        "x-ratelimit-remaining-tokens": "149999968",
+        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-reset-tokens": "0s",
+        "X-Request-ID": "Sanitized"
+      },
+      "ResponseBody": {
+        "id": "chatcmpl-9wkwyGxAtPaXYxVuxPKrKZCSqjPXa",
+        "object": "chat.completion",
+        "created": 1723790528,
+        "model": "gpt-4o-mini-2024-07-18",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Your favorite color in February is chartreuse.",
+              "refusal": null
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 108,
+          "completion_tokens": 10,
+          "total_tokens": 118
+        },
+        "system_fingerprint": "fp_48196bc67a"
+      }
+    }
+  ],
+  "Variables": {
+    "RandomSeed": "1636949283"
+  }
+}

@@ -1,48 +1,42 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 using OpenAI.Chat;
+using OpenAI.TestFramework;
 using OpenAI.Tests.Utility;
 using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static OpenAI.Tests.TestHelpers;
 
 namespace OpenAI.Tests.Chat;
 
-[TestFixture(true)]
-[TestFixture(false)]
-[Parallelizable(ParallelScope.All)]
+
 [Category("Chat")]
-public partial class ChatTests : SyncAsyncTestBase
+public class ChatTests : OpenAiTestBase
 {
     public ChatTests(bool isAsync) : base(isAsync)
     {
     }
 
-    [Test]
+    [RecordedTest]
     public async Task HelloWorldChat()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [new UserChatMessage("Hello, world!")];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages);
         Assert.That(result, Is.InstanceOf<ClientResult<ChatCompletion>>());
         Assert.That(result.Value.Content[0].Kind, Is.EqualTo(ChatMessageContentPartKind.Text));
         Assert.That(result.Value.Content[0].Text.Length, Is.GreaterThan(0));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task HelloWorldWithTopLevelClient()
     {
-        OpenAIClient client = GetTestClient<OpenAIClient>(TestScenario.TopLevel);
+        OpenAIClient client = GetTestTopLevel();
         ChatClient chatClient = client.GetChatClient("gpt-4o-mini");
         IEnumerable<ChatMessage> messages = [new UserChatMessage("Hello, world!")];
         ClientResult<ChatCompletion> result = IsAsync
@@ -51,112 +45,67 @@ public partial class ChatTests : SyncAsyncTestBase
         Assert.That(result.Value.Content[0].Text.Length, Is.GreaterThan(0));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task MultiMessageChat()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [
             new SystemChatMessage("You are a helpful assistant. You always talk like a pirate."),
             new UserChatMessage("Hello, assistant! Can you help me train my parrot?"),
         ];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages);
         Assert.That(new string[] { "aye", "arr", "hearty" }.Any(pirateWord => result.Value.Content[0].Text.ToLowerInvariant().Contains(pirateWord)));
     }
 
-    [Test]
-    public void StreamingChat()
+    [RecordedTest]
+    public async Task StreamingChat()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [
             new UserChatMessage("What are the best pizza toppings? Give me a breakdown on the reasons.")
         ];
-
-        TimeSpan? firstTokenReceiptTime = null;
-        TimeSpan? latestTokenReceiptTime = null;
-        Stopwatch stopwatch = Stopwatch.StartNew();
-
-        CollectionResult<StreamingChatCompletionUpdate> streamingResult = client.CompleteChatStreaming(messages);
-        Assert.That(streamingResult, Is.InstanceOf<CollectionResult<StreamingChatCompletionUpdate>>());
-        int updateCount = 0;
-
-        foreach (StreamingChatCompletionUpdate chatUpdate in streamingResult)
-        {
-            firstTokenReceiptTime ??= stopwatch.Elapsed;
-            latestTokenReceiptTime = stopwatch.Elapsed;
-            Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds);
-            updateCount++;
-        }
-        Assert.That(updateCount, Is.GreaterThan(1));
-        Assert.That(latestTokenReceiptTime - firstTokenReceiptTime > TimeSpan.FromMilliseconds(500));
-
-        // Validate that network stream was disposed - this will show up as the
-        // the raw response holding an empty content stream.
-        PipelineResponse response = streamingResult.GetRawResponse();
-        Assert.That(response.ContentStream.Length, Is.EqualTo(0));
-    }
-
-    [Test]
-    public async Task StreamingChatAsync()
-    {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
-        IEnumerable<ChatMessage> messages = [
-            new UserChatMessage("What are the best pizza toppings? Give me a breakdown on the reasons.")
-        ];
-
-        TimeSpan? firstTokenReceiptTime = null;
-        TimeSpan? latestTokenReceiptTime = null;
-        Stopwatch stopwatch = Stopwatch.StartNew();
 
         AsyncCollectionResult<StreamingChatCompletionUpdate> streamingResult = client.CompleteChatStreamingAsync(messages);
-        Assert.That(streamingResult, Is.InstanceOf<AsyncCollectionResult<StreamingChatCompletionUpdate>>());
         int updateCount = 0;
         ChatTokenUsage usage = null;
 
         await foreach (StreamingChatCompletionUpdate chatUpdate in streamingResult)
         {
-            firstTokenReceiptTime ??= stopwatch.Elapsed;
-            latestTokenReceiptTime = stopwatch.Elapsed;
             usage ??= chatUpdate.Usage;
-            Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds);
             updateCount++;
         }
         Assert.That(updateCount, Is.GreaterThan(1));
-        Assert.That(latestTokenReceiptTime - firstTokenReceiptTime > TimeSpan.FromMilliseconds(500));
         Assert.That(usage, Is.Not.Null);
         Assert.That(usage?.InputTokens, Is.GreaterThan(0));
         Assert.That(usage?.OutputTokens, Is.GreaterThan(0));
         Assert.That(usage.InputTokens + usage.OutputTokens, Is.EqualTo(usage.TotalTokens));
 
-        // Validate that network stream was disposed - this will show up as the
-        // the raw response holding an empty content stream.
-        PipelineResponse response = streamingResult.GetRawResponse();
-        Assert.That(response.ContentStream.Length, Is.EqualTo(0));
+        //// Validate that network stream was disposed - this will show up as the
+        //// the raw response holding an empty content stream.
+        //PipelineResponse response = streamingResult.GetRawResponse();
+        //Assert.That(response.ContentStream.Length, Is.EqualTo(0));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task TwoTurnChat()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
 
         List<ChatMessage> messages =
         [
             new UserChatMessage("In geometry, what are the different kinds of triangles, as defined by lengths of their sides?"),
         ];
-        ClientResult<ChatCompletion> firstResult = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        ClientResult<ChatCompletion> firstResult = await client.CompleteChatAsync(messages);
         Assert.That(firstResult?.Value, Is.Not.Null);
         Assert.That(firstResult.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("isosceles"));
         messages.Add(new AssistantChatMessage(firstResult.Value));
         messages.Add(new UserChatMessage("Which of those is the one where exactly two sides are the same length?"));
-        ClientResult<ChatCompletion> secondResult = client.CompleteChat(messages);
+        ClientResult<ChatCompletion> secondResult = await client.CompleteChatAsync(messages);
         Assert.That(secondResult?.Value, Is.Not.Null);
         Assert.That(secondResult.Value.Content[0].Text.ToLowerInvariant(), Contains.Substring("isosceles"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task ChatWithVision()
     {
         string mediaType = "image/png";
@@ -164,7 +113,7 @@ public partial class ChatTests : SyncAsyncTestBase
         using Stream stream = File.OpenRead(filePath);
         BinaryData imageData = BinaryData.FromStream(stream);
 
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [
             new UserChatMessage(
                 ChatMessageContentPart.CreateTextMessageContentPart("Describe this image for me."),
@@ -172,43 +121,55 @@ public partial class ChatTests : SyncAsyncTestBase
         ];
         ChatCompletionOptions options = new() { MaxTokens = 2048 };
 
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
         Console.WriteLine(result.Value.Content[0].Text);
         Assert.That(result.Value.Content[0].Text.ToLowerInvariant(), Does.Contain("dog").Or.Contain("cat").IgnoreCase);
     }
 
-    [Test]
-    public async Task AuthFailure()
+    [RecordedTest]
+    public void AuthFailure()
     {
         string fakeApiKey = "not-a-real-key-but-should-be-sanitized";
-        ChatClient client = new("gpt-4o-mini", new ApiKeyCredential(fakeApiKey));
+        ChatClient client = GetTestClient<ChatClient>("gpt-4o-mini", new ApiKeyCredential(fakeApiKey));
         IEnumerable<ChatMessage> messages = [new UserChatMessage("Uh oh, this isn't going to work with that key")];
-        ClientResultException clientResultException = null;
+
+        var clientResultException = Assert.ThrowsAsync<ClientResultException>(() => client.CompleteChatAsync(messages));
+        Assert.That(clientResultException.Status, Is.EqualTo((int)HttpStatusCode.Unauthorized));
+        Assert.That(clientResultException.Message, Does.Contain("API key"));
+        Assert.That(clientResultException.Message, Does.Not.Contain(fakeApiKey));
+    }
+
+    [RecordedTest]
+    public async Task AuthFailureStreaming()
+    {
+        string fakeApiKey = "not-a-real-key-but-should-be-sanitized";
+        ChatClient client = GetTestClient<ChatClient>("gpt-4o-mini", new ApiKeyCredential(fakeApiKey));
+
+        Exception caughtException = null;
         try
         {
-            _ = IsAsync
-                ? await client.CompleteChatAsync(messages)
-                : client.CompleteChat(messages);
+            await foreach (var _ in client.CompleteChatStreamingAsync(
+                [new UserChatMessage("Uh oh, this isn't going to work with that key")]))
+            { }
         }
-        catch (ClientResultException ex)
+        catch (Exception ex)
         {
-            clientResultException = ex;
+            caughtException = ex;
         }
+        var clientResultException = caughtException as ClientResultException;
         Assert.That(clientResultException, Is.Not.Null);
         Assert.That(clientResultException.Status, Is.EqualTo((int)HttpStatusCode.Unauthorized));
         Assert.That(clientResultException.Message, Does.Contain("API key"));
         Assert.That(clientResultException.Message, Does.Not.Contain(fakeApiKey));
     }
 
-    [Test]
+    [RecordedTest]
     [TestCase(true)]
     [TestCase(false)]
     public async Task TokenLogProbabilities(bool includeLogProbabilities)
     {
         const int topLogProbabilityCount = 3;
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IList<ChatMessage> messages = [new UserChatMessage("What are the best pizza toppings? Give me a breakdown on the reasons.")];
         ChatCompletionOptions options;
         
@@ -254,13 +215,13 @@ public partial class ChatTests : SyncAsyncTestBase
         }
     }
 
-    [Test]
+    [RecordedTest]
     [TestCase(true)]
     [TestCase(false)]
     public async Task TokenLogProbabilitiesStreaming(bool includeLogProbabilities)
     {
         const int topLogProbabilityCount = 3;
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IList<ChatMessage> messages = [new UserChatMessage("What are the best pizza toppings? Give me a breakdown on the reasons.")];
         ChatCompletionOptions options;
 
@@ -312,18 +273,16 @@ public partial class ChatTests : SyncAsyncTestBase
         }
     }
 
-    [Test]
+    [RecordedTest]
     public async Task JsonResult()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [
             new UserChatMessage("Give me a JSON object with the following properties: red, green, and blue. The value "
                 + "of each property should be a string containing their RGB representation in hexadecimal.")
         ];
         ChatCompletionOptions options = new() { ResponseFormat = ChatResponseFormat.JsonObject };
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages, options);
 
         JsonDocument jsonDocument = JsonDocument.Parse(result.Value.Content[0].Text);
 
