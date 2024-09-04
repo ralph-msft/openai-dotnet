@@ -9,7 +9,7 @@
         "Content-Length": "540",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -44,14 +44,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f719fc9211694-SJC",
+        "CF-RAY": "8be156142e78176b-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:21 GMT",
+        "Date": "Wed, 04 Sep 2024 22:15:06 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "715",
+        "openai-processing-ms": "697",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -66,9 +67,9 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkxAAFa28G1kItldVKRfDhtVjTre",
+        "id": "chatcmpl-A3sZF4BqtMiKJV2c2msECwDPDkJvX",
         "object": "chat.completion",
-        "created": 1723790540,
+        "created": 1725488105,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
@@ -78,7 +79,7 @@
               "content": null,
               "tool_calls": [
                 {
-                  "id": "call_ZzR5szq8uRQfJk5NSplpNZI8",
+                  "id": "call_FNqJjg03d67nODXFPsLfPPLv",
                   "type": "function",
                   "function": {
                     "name": "get_weather_for_city",
@@ -86,7 +87,7 @@
                   }
                 },
                 {
-                  "id": "call_ZdCB3pPGHMO6VSg837Y88Swn",
+                  "id": "call_Unjs5GNcBoGL5nq5ClQWIHNm",
                   "type": "function",
                   "function": {
                     "name": "get_weather_for_city",
@@ -105,7 +106,7 @@
           "completion_tokens": 52,
           "total_tokens": 133
         },
-        "system_fingerprint": "fp_48196bc67a"
+        "system_fingerprint": "fp_f33667828e"
       }
     },
     {
@@ -117,7 +118,7 @@
         "Content-Length": "1057",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -127,9 +128,10 @@
             "content": "Tell me what's the current weather in the following cities: Santiago and Karachi."
           },
           {
+            "role": "assistant",
             "tool_calls": [
               {
-                "id": "call_ZzR5szq8uRQfJk5NSplpNZI8",
+                "id": "call_FNqJjg03d67nODXFPsLfPPLv",
                 "type": "function",
                 "function": {
                   "name": "get_weather_for_city",
@@ -137,24 +139,23 @@
                 }
               },
               {
-                "id": "call_ZdCB3pPGHMO6VSg837Y88Swn",
+                "id": "call_Unjs5GNcBoGL5nq5ClQWIHNm",
                 "type": "function",
                 "function": {
                   "name": "get_weather_for_city",
                   "arguments": "{\"city_name\": \"Karachi\"}"
                 }
               }
-            ],
-            "role": "assistant"
+            ]
           },
           {
-            "tool_call_id": "call_ZzR5szq8uRQfJk5NSplpNZI8",
             "role": "tool",
+            "tool_call_id": "call_FNqJjg03d67nODXFPsLfPPLv",
             "content": "rainy"
           },
           {
-            "tool_call_id": "call_ZdCB3pPGHMO6VSg837Y88Swn",
             "role": "tool",
+            "tool_call_id": "call_Unjs5GNcBoGL5nq5ClQWIHNm",
             "content": "sunny"
           }
         ],
@@ -183,14 +184,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f71a56d871694-SJC",
+        "CF-RAY": "8be156192b78176b-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:22 GMT",
+        "Date": "Wed, 04 Sep 2024 22:15:06 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "476",
+        "openai-processing-ms": "311",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -205,16 +207,16 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkxBT7BLp0oW4eYvvvk9pEbl8yXu",
+        "id": "chatcmpl-A3sZGjVnBTjKkfzJXcWreu7zYadMs",
         "object": "chat.completion",
-        "created": 1723790541,
+        "created": 1725488106,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "The current weather is as follows:\n\n- Santiago: Rainy\n- Karachi: Sunny",
+              "content": "The current weather is as follows:\n- Santiago: Rainy\n- Karachi: Sunny",
               "refusal": null
             },
             "logprobs": null,
@@ -226,11 +228,11 @@
           "completion_tokens": 18,
           "total_tokens": 169
         },
-        "system_fingerprint": "fp_507c9469a1"
+        "system_fingerprint": "fp_f33667828e"
       }
     }
   ],
   "Variables": {
-    "RandomSeed": "1548727286"
+    "RandomSeed": "21087200"
   }
 }

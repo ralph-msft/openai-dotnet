@@ -9,7 +9,7 @@
         "Content-Length": "490",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -41,14 +41,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f714e6dfb251e-SJC",
+        "CF-RAY": "8be155cfd87b96c0-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:08 GMT",
+        "Date": "Wed, 04 Sep 2024 22:14:55 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "345",
+        "openai-processing-ms": "392",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -63,9 +64,9 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkwx1DoIfuXNFaPrZP2B2WEO7I4M",
+        "id": "chatcmpl-A3sZ4KLeRE2omebS6SffNXQjqrXe8",
         "object": "chat.completion",
-        "created": 1723790527,
+        "created": 1725488094,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
@@ -88,7 +89,7 @@
           "completion_tokens": 19,
           "total_tokens": 94
         },
-        "system_fingerprint": "fp_48196bc67a"
+        "system_fingerprint": "fp_f905cf32a9"
       }
     },
     {
@@ -100,7 +101,7 @@
         "Content-Length": "708",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -110,15 +111,15 @@
             "content": "What's my favorite color in February?"
           },
           {
+            "role": "assistant",
             "function_call": {
               "arguments": "{\"month_name\":\"February\"}",
               "name": "get_favorite_color_for_month"
-            },
-            "role": "assistant"
+            }
           },
           {
-            "name": "get_favorite_color_for_month",
             "role": "function",
+            "name": "get_favorite_color_for_month",
             "content": "chartreuse"
           }
         ],
@@ -144,14 +145,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f7151ff99251e-SJC",
+        "CF-RAY": "8be155d38b4e96c0-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:09 GMT",
+        "Date": "Wed, 04 Sep 2024 22:14:55 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "811",
+        "openai-processing-ms": "174",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -166,9 +168,9 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkwyGxAtPaXYxVuxPKrKZCSqjPXa",
+        "id": "chatcmpl-A3sZ5id55kgMihOVKg5VYDEdIKyuA",
         "object": "chat.completion",
-        "created": 1723790528,
+        "created": 1725488095,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
@@ -187,11 +189,11 @@
           "completion_tokens": 10,
           "total_tokens": 118
         },
-        "system_fingerprint": "fp_48196bc67a"
+        "system_fingerprint": "fp_f33667828e"
       }
     }
   ],
   "Variables": {
-    "RandomSeed": "1636949283"
+    "RandomSeed": "640062086"
   }
 }

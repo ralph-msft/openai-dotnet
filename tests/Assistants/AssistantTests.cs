@@ -23,17 +23,11 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
     [OneTimeTearDown]
     protected void Cleanup()
     {
-        // Skip cleanup if there is no API key (e.g., if we are not running live tests).
-        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OPENAI_API_KEY")))
-        {
-            return;
-        }
-
         var clientOptions = ConfigureClientOptions(new OpenAIClientOptions());
 
-        AssistantClient client = new(clientOptions);
-        FileClient fileClient = new(clientOptions);
-        VectorStoreClient vectorStoreClient = new(clientOptions);
+        AssistantClient client = new(TestCredential, clientOptions);
+        FileClient fileClient = new(TestCredential, clientOptions);
+        VectorStoreClient vectorStoreClient = new(TestCredential, clientOptions);
         RequestOptions requestOptions = new()
         {
             ErrorOptions = ClientErrorBehaviors.NoThrow,
@@ -687,7 +681,7 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
         Assert.That(hasCake, Is.True);
     }
 
-    [Test]
+    [RecordedTest]
     public async Task BasicFileSearchStreamingWorks()
     {
         const string fileContent = """
@@ -699,11 +693,11 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
 
         const string fileName = "favorite_foods.txt";
 
-        FileClient fileClient = GetTestClient<FileClient>(TestScenario.Files);
-        AssistantClient client = GetTestClient<AssistantClient>(TestScenario.Assistants);
+        FileClient fileClient = GetTestClient<FileClient>();
+        AssistantClient client = GetTestClient<AssistantClient>();
 
         // First, upload a simple test file.
-        OpenAIFileInfo testFile = fileClient.UploadFile(BinaryData.FromString(fileContent), fileName, FileUploadPurpose.Assistants);
+        OpenAIFileInfo testFile = await fileClient.UploadFileAsync(BinaryData.FromString(fileContent), fileName, FileUploadPurpose.Assistants);
         Validate(testFile);
 
         // Create an assistant, using the creation helper to make a new vector store.
@@ -718,7 +712,7 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
                 }
             }
         };
-        Assistant assistant = client.CreateAssistant("gpt-4o-mini", assistantCreationOptions);
+        Assistant assistant = await client.CreateAssistantAsync("gpt-4o-mini", assistantCreationOptions);
         Validate(assistant);
 
         Assert.That(assistant.ToolResources?.FileSearch?.VectorStoreIds, Has.Count.EqualTo(1));
@@ -730,7 +724,7 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
         {
             InitialMessages = { "Using the files you have available, what's Filip's favorite food?" }
         };
-        AssistantThread thread = client.CreateThread(threadCreationOptions);
+        AssistantThread thread = await client.CreateThreadAsync(threadCreationOptions);
         Validate(thread);
 
         // Create run and stream the results.

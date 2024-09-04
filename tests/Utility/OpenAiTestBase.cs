@@ -15,7 +15,6 @@ using OpenAI.Embeddings;
 using OpenAI.Files;
 using OpenAI.Images;
 using OpenAI.TestFramework;
-using OpenAI.TestFramework.Recording;
 using OpenAI.TestFramework.Recording.Proxy;
 using OpenAI.TestFramework.Recording.Proxy.Service;
 using OpenAI.TestFramework.Recording.RecordingProxy;
@@ -27,12 +26,20 @@ namespace OpenAI.Tests.Utility;
 
 public class OpenAiTestBase : RecordedClientTestBase
 {
+    private const string KEY_ENV = "OPENAI_API_KEY";
     private const string SMALL_1x1_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiQAABYkAZsVxhQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=";
     private static readonly bool USE_ASSETS_JSON = false;
 
     public OpenAiTestBase(bool isAsync, RecordedTestMode? mode = null) : base(isAsync, mode)
     {
         TestEnvironment = new();
+
+        TestCredential = Mode switch
+        {
+            RecordedTestMode.Playback => new ApiKeyCredential("FAKE_API_KEY"),
+            _ => new ApiKeyCredential(Environment.GetEnvironmentVariable(KEY_ENV)
+                ?? throw new InvalidOperationException($"{KEY_ENV} environment variable was not set"))
+        };
 
         // Remove some of the default sanitizers to customize their behaviour
         RecordingOptions.SanitizersToRemove.AddRange(
@@ -97,16 +104,17 @@ public class OpenAiTestBase : RecordedClientTestBase
 
     public string? DefaultModel { get; }
 
+    public ApiKeyCredential TestCredential { get; }
+
     public virtual OpenAIClient GetTestTopLevel(ApiKeyCredential? credential = null, OpenAIClientOptions? options = null)
     {
+        credential ??= TestCredential;
+
         options ??= new();
         options.AddPolicy(new TestPipelinePolicy(DumpMessage), PipelinePosition.PerTry);
         options = ConfigureClientOptions(options);
 
-        OpenAIClient topLevel = credential != null
-            ? new(credential, options)
-            : new(options);
-
+        OpenAIClient topLevel = new(credential, options);
         return topLevel;
     }
 

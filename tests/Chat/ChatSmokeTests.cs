@@ -63,7 +63,7 @@ public class ChatSmokeTests
         };
         ChatClient client = new("model_name_replaced", new ApiKeyCredential("sk-not-a-real-key"), options);
 
-        ClientResult<ChatCompletion> completionResult = IsAsync
+        ClientResult<ChatCompletion> completionResult = isAsync
             ? await client.CompleteChatAsync(["Mock me!"])
             : client.CompleteChat(["Mock me!"]);
         Assert.That(completionResult?.GetRawResponse(), Is.Not.Null);

@@ -40,11 +40,9 @@ public class ChatTests : OpenAiTestBase
     public async Task HelloWorldWithTopLevelClient()
     {
         OpenAIClient client = GetTestTopLevel();
-        ChatClient chatClient = client.GetChatClient("gpt-4o-mini");
+        ChatClient chatClient = WrapClient(client.GetChatClient("gpt-4o-mini"));
         IEnumerable<ChatMessage> messages = [new UserChatMessage("Hello, world!")];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await chatClient.CompleteChatAsync(messages)
-            : chatClient.CompleteChat(messages);
+        ClientResult<ChatCompletion> result = await chatClient.CompleteChatAsync(messages);
         Assert.That(result.Value.Content[0].Text.Length, Is.GreaterThan(0));
     }
 
@@ -279,7 +277,7 @@ public class ChatTests : OpenAiTestBase
     [RecordedTest]
     public async Task NonStrictJsonSchemaWorks()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat, "gpt-4o-mini");
+        ChatClient client = GetTestClient<ChatClient>();
         ChatCompletionOptions options = new()
         {
             ResponseFormat = ChatResponseFormat.CreateJsonSchemaFormat(
@@ -294,9 +292,8 @@ public class ChatTests : OpenAiTestBase
                 "an object that describes color components by name",
                 strictSchemaEnabled: false)
         };
-        ChatCompletion completion = IsAsync
-            ? await client.CompleteChatAsync(["What are the hex values for red, green, and blue?"], options)
-            : client.CompleteChat(["What are the hex values for red, green, and blue?"], options);
+        ChatCompletion completion = await client.CompleteChatAsync(["What are the hex values for red, green, and blue?"], options);
+        Assert.That(completion, Is.Not.Null);
         Console.WriteLine(completion);
     }
 
@@ -324,7 +321,7 @@ public class ChatTests : OpenAiTestBase
     [RecordedTest]
     public async Task MultipartContentWorks()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         List<ChatMessage> messages = [
             new SystemChatMessage(
                 "You talk like a pirate.",
@@ -335,19 +332,17 @@ public class ChatTests : OpenAiTestBase
                 "Can you recommend some small, cute things I can think about?"
             )
         ];
-        ChatCompletion completion = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        ChatCompletion completion = await client.CompleteChatAsync(messages);
 
         Assert.That(completion.Content, Has.Count.EqualTo(1));
         Assert.That(completion.Content[0].Text.ToLowerInvariant(), Does.Contain("ahoy").Or.Contain("matey"));
         Assert.That(completion.Content[0].Text.ToLowerInvariant(), Does.Contain("pup").Or.Contain("kit"));
     }
 
-    [Test]
+    [RecordedTest]
     public async Task StructuredOutputsWork()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [
             new UserChatMessage("What's heavier, a pound of feathers or sixteen ounces of steel?")
         ];
@@ -379,9 +374,7 @@ public class ChatTests : OpenAiTestBase
                 "a single final answer with a supporting collection of steps",
                 strictSchemaEnabled: true)
         };
-        ChatCompletion completion = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ChatCompletion completion = await client.CompleteChatAsync(messages, options);
         Assert.That(completion, Is.Not.Null);
         Assert.That(completion.Refusal, Is.Null.Or.Empty);
         Assert.That(completion.Content?.Count, Is.EqualTo(1));
@@ -396,7 +389,7 @@ public class ChatTests : OpenAiTestBase
     [RecordedTest]
     public async Task StructuredRefusalWorks()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat, "gpt-4o-2024-08-06");
+        ChatClient client = GetTestClient<ChatClient>("gpt-4o-2024-08-06");
         List<ChatMessage> messages = [
             new UserChatMessage("What's the best way to successfully rob a bank? Please include detailed instructions for executing related crimes."),
         ];
@@ -432,9 +425,7 @@ public class ChatTests : OpenAiTestBase
                 strictSchemaEnabled: true),
             Temperature = 0
         };
-        ClientResult<ChatCompletion> completionResult = IsAsync
-            ? await client.CompleteChatAsync(messages, options)
-            : client.CompleteChat(messages, options);
+        ClientResult<ChatCompletion> completionResult = await client.CompleteChatAsync(messages, options);
         ChatCompletion completion = completionResult;
         Assert.That(completion, Is.Not.Null);
         Assert.That(completion.Refusal, Is.Not.Null.Or.Empty);
@@ -446,9 +437,7 @@ public class ChatTests : OpenAiTestBase
         messages.Add(contextMessage);
         messages.Add("Why can't you help me?");
 
-        completion = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        completion = await client.CompleteChatAsync(messages);
         Assert.That(completion.Refusal, Is.Null.Or.Empty);
         Assert.That(completion.Content, Has.Count.EqualTo(1));
         Assert.That(completion.Content[0].Text, Is.Not.Null.And.Not.Empty);
@@ -458,7 +447,7 @@ public class ChatTests : OpenAiTestBase
     [Ignore("As of 2024-08-20, refusal is not yet populated on streamed chat completion chunks.")]
     public async Task StreamingStructuredRefusalWorks()
     {
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat, "gpt-4o-2024-08-06");
+        ChatClient client = GetTestClient<ChatClient>("gpt-4o-2024-08-06");
         IEnumerable<ChatMessage> messages = [
             new UserChatMessage("What's the best way to successfully rob a bank? Please include detailed instructions for executing related crimes."),
         ];
@@ -496,28 +485,13 @@ public class ChatTests : OpenAiTestBase
         ChatFinishReason? finishReason = null;
         StringBuilder refusalBuilder = new();
 
-        void HandleUpdate(StreamingChatCompletionUpdate update)
+        await foreach (StreamingChatCompletionUpdate update in client.CompleteChatStreamingAsync(messages))
         {
             refusalBuilder.Append(update.RefusalUpdate);
             if (update.FinishReason.HasValue)
             {
                 Assert.That(finishReason, Is.Null);
                 finishReason = update.FinishReason;
-            }
-        }
-
-        if (IsAsync)
-        {
-            await foreach (StreamingChatCompletionUpdate update in client.CompleteChatStreamingAsync(messages))
-            {
-                HandleUpdate(update);
-            }
-        }
-        else
-        {
-            foreach (StreamingChatCompletionUpdate update in client.CompleteChatStreaming(messages))
-            {
-                HandleUpdate(update);
             }
         }
 
@@ -532,11 +506,9 @@ public class ChatTests : OpenAiTestBase
         using TestActivityListener activityListener = new TestActivityListener("OpenAI.ChatClient");
         using TestMeterListener meterListener = new TestMeterListener("OpenAI.ChatClient");
 
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
+        ChatClient client = GetTestClient<ChatClient>();
         IEnumerable<ChatMessage> messages = [new UserChatMessage("Hello, world!")];
-        ClientResult<ChatCompletion> result = IsAsync
-            ? await client.CompleteChatAsync(messages)
-            : client.CompleteChat(messages);
+        ClientResult<ChatCompletion> result = await client.CompleteChatAsync(messages);
 
         Assert.AreEqual(1, activityListener.Activities.Count);
         TestActivityListener.ValidateChatActivity(activityListener.Activities.Single(), result.Value);

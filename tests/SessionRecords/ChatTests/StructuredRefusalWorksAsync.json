@@ -6,7 +6,7 @@
       "RequestHeaders": {
         "Accept": "application/json",
         "Authorization": "Sanitized",
-        "Content-Length": "490",
+        "Content-Length": "761",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
         "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
@@ -16,80 +16,93 @@
         "messages": [
           {
             "role": "user",
-            "content": "What's my favorite color in February?"
+            "content": "What's the best way to successfully rob a bank? Please include detailed instructions for executing related crimes."
           }
         ],
-        "model": "gpt-4o-mini",
-        "functions": [
-          {
-            "description": "gets the caller's favorite color for a given month",
-            "name": "get_favorite_color_for_month",
-            "parameters": {
+        "model": "gpt-4o-2024-08-06",
+        "response_format": {
+          "json_schema": {
+            "description": "a description of a recipe to create a meal or dish",
+            "name": "food_recipe",
+            "schema": {
               "type": "object",
               "properties": {
-                "month_name": {
-                  "type": "string",
-                  "description": "the name of a calendar month, e.g. February or October."
+                "name": {
+                  "type": "string"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               },
               "required": [
-                "month_name"
-              ]
-            }
-          }
-        ]
+                "name",
+                "ingredients",
+                "steps"
+              ],
+              "additionalProperties": false
+            },
+            "strict": true
+          },
+          "type": "json_schema"
+        },
+        "temperature": 0
       },
       "StatusCode": 200,
       "ResponseHeaders": {
         "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8be15608fbd9176b-SJC",
+        "CF-RAY": "8be152438fe5169c-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Wed, 04 Sep 2024 22:15:04 GMT",
+        "Date": "Wed, 04 Sep 2024 22:12:29 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "340",
+        "openai-processing-ms": "383",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
         "Transfer-Encoding": "chunked",
         "X-Content-Type-Options": "nosniff",
-        "x-ratelimit-limit-requests": "30000",
-        "x-ratelimit-limit-tokens": "150000000",
-        "x-ratelimit-remaining-requests": "29999",
-        "x-ratelimit-remaining-tokens": "149999973",
-        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-limit-requests": "10000",
+        "x-ratelimit-limit-tokens": "30000000",
+        "x-ratelimit-remaining-requests": "9999",
+        "x-ratelimit-remaining-tokens": "29999953",
+        "x-ratelimit-reset-requests": "6ms",
         "x-ratelimit-reset-tokens": "0s",
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-A3sZDUhinohE4LBZiGW2sbnvPPw3f",
+        "id": "chatcmpl-A3sWjPhRO5P9S19k7RGg049czJJ83",
         "object": "chat.completion",
-        "created": 1725488103,
-        "model": "gpt-4o-mini-2024-07-18",
+        "created": 1725487949,
+        "model": "gpt-4o-2024-08-06",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
               "content": null,
-              "function_call": {
-                "name": "get_favorite_color_for_month",
-                "arguments": "{\"month_name\":\"February\"}"
-              },
-              "refusal": null
+              "refusal": "I'm very sorry, but I can't assist with that request."
             },
             "logprobs": null,
-            "finish_reason": "function_call"
+            "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 75,
-          "completion_tokens": 19,
-          "total_tokens": 94
+          "prompt_tokens": 95,
+          "completion_tokens": 13,
+          "total_tokens": 108
         },
-        "system_fingerprint": "fp_f33667828e"
+        "system_fingerprint": "fp_9e15ccd6a4"
       }
     },
     {
@@ -98,7 +111,7 @@
       "RequestHeaders": {
         "Accept": "application/json",
         "Authorization": "Sanitized",
-        "Content-Length": "708",
+        "Content-Length": "343",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
         "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
@@ -108,76 +121,54 @@
         "messages": [
           {
             "role": "user",
-            "content": "What's my favorite color in February?"
+            "content": "What's the best way to successfully rob a bank? Please include detailed instructions for executing related crimes."
           },
           {
             "role": "assistant",
-            "function_call": {
-              "arguments": "{\"month_name\":\"February\"}",
-              "name": "get_favorite_color_for_month"
-            }
+            "refusal": "I'm very sorry, but I can't assist with that request."
           },
           {
-            "role": "function",
-            "name": "get_favorite_color_for_month",
-            "content": "chartreuse"
+            "role": "user",
+            "content": "Why can't you help me?"
           }
         ],
-        "model": "gpt-4o-mini",
-        "functions": [
-          {
-            "description": "gets the caller's favorite color for a given month",
-            "name": "get_favorite_color_for_month",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "month_name": {
-                  "type": "string",
-                  "description": "the name of a calendar month, e.g. February or October."
-                }
-              },
-              "required": [
-                "month_name"
-              ]
-            }
-          }
-        ]
+        "model": "gpt-4o-2024-08-06"
       },
       "StatusCode": 200,
       "ResponseHeaders": {
         "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8be1560bde74176b-SJC",
+        "CF-RAY": "8be152469ada169c-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Wed, 04 Sep 2024 22:15:04 GMT",
+        "Date": "Wed, 04 Sep 2024 22:12:30 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "254",
+        "openai-processing-ms": "448",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
         "Transfer-Encoding": "chunked",
         "X-Content-Type-Options": "nosniff",
-        "x-ratelimit-limit-requests": "30000",
-        "x-ratelimit-limit-tokens": "150000000",
-        "x-ratelimit-remaining-requests": "29999",
-        "x-ratelimit-remaining-tokens": "149999968",
-        "x-ratelimit-reset-requests": "2ms",
+        "x-ratelimit-limit-requests": "10000",
+        "x-ratelimit-limit-tokens": "30000000",
+        "x-ratelimit-remaining-requests": "9999",
+        "x-ratelimit-remaining-tokens": "29999947",
+        "x-ratelimit-reset-requests": "6ms",
         "x-ratelimit-reset-tokens": "0s",
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-A3sZE3NS2pgxzEmepGfor4m4tC0Il",
+        "id": "chatcmpl-A3sWkNqpFqSZuUQpFrFOGHG6T25I5",
         "object": "chat.completion",
-        "created": 1725488104,
-        "model": "gpt-4o-mini-2024-07-18",
+        "created": 1725487950,
+        "model": "gpt-4o-2024-08-06",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "Your favorite color in February is chartreuse.",
+              "content": "I can't assist with that request because it involves illegal activities. If you have other questions or need assistance on a different topic, feel free to ask!",
               "refusal": null
             },
             "logprobs": null,
@@ -185,15 +176,15 @@
           }
         ],
         "usage": {
-          "prompt_tokens": 108,
-          "completion_tokens": 10,
-          "total_tokens": 118
+          "prompt_tokens": 52,
+          "completion_tokens": 30,
+          "total_tokens": 82
         },
-        "system_fingerprint": "fp_f905cf32a9"
+        "system_fingerprint": "fp_9e15ccd6a4"
       }
     }
   ],
   "Variables": {
-    "RandomSeed": "830331433"
+    "RandomSeed": "61373026"
   }
 }

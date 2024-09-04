@@ -315,7 +315,7 @@ public partial class ChatToolTests : OpenAiTestBase
     public enum StrictnessPresence { Unspecified, Strict, NotStrict }
     public enum FailureExpectation { FailureExpected, FailureNotExpected }
 
-    [Test]
+    [RecordedTest]
     [TestCase(SchemaPresence.WithoutSchema, StrictnessPresence.Unspecified)]
     [TestCase(SchemaPresence.WithoutSchema, StrictnessPresence.NotStrict)]
     [TestCase(SchemaPresence.WithoutSchema, StrictnessPresence.Strict, FailureExpectation.FailureExpected)]
@@ -328,7 +328,7 @@ public partial class ChatToolTests : OpenAiTestBase
         FailureExpectation failureExpectation = FailureExpectation.FailureNotExpected)
     {
         // Note: proper output requires 2024-08-06 or later models
-        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat, "gpt-4o-2024-08-06");
+        ChatClient client = GetTestClient<ChatClient>("gpt-4o-2024-08-06");
 
         const string toolName = "get_favorite_color_for_day_of_week";
         const string toolDescription = "Given a weekday name like Tuesday, gets the favorite color of the user on that day.";
@@ -366,19 +366,12 @@ public partial class ChatToolTests : OpenAiTestBase
 
         if (failureExpectation == FailureExpectation.FailureExpected)
         {
-            ClientResultException thrownException = Assert.ThrowsAsync<ClientResultException>(async () =>
-            {
-                ChatCompletion completion = IsAsync
-                    ? await client.CompleteChatAsync(messages, options)
-                    : client.CompleteChat(messages, options);
-            });
+            ClientResultException thrownException = Assert.ThrowsAsync<ClientResultException>(() => client.CompleteChatAsync(messages, options));
             Assert.That(thrownException.Message, Does.Contain("function.parameters"));
         }
         else
         {
-            ChatCompletion completion = IsAsync
-                ? await client.CompleteChatAsync(messages, options)
-                : client.CompleteChat(messages, options);
+            ChatCompletion completion = await client.CompleteChatAsync(messages, options);
             Assert.That(completion.FinishReason, Is.EqualTo(ChatFinishReason.ToolCalls));
             Assert.That(completion.ToolCalls, Has.Count.EqualTo(1));
             Assert.That(completion.ToolCalls[0].FunctionArguments, Is.Not.Null.And.Not.Empty);

@@ -9,7 +9,7 @@
         "Content-Length": "517",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -44,14 +44,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f71a948471694-SJC",
+        "CF-RAY": "8be1561bfe18176b-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:22 GMT",
+        "Date": "Wed, 04 Sep 2024 22:15:07 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "293",
+        "openai-processing-ms": "284",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -66,9 +67,9 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkxCFzL6LDxVAA0BFBpRs8QPimbp",
+        "id": "chatcmpl-A3sZH5CaXcPfLkfhkosMFzzeiELvu",
         "object": "chat.completion",
-        "created": 1723790542,
+        "created": 1725488107,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
@@ -78,7 +79,7 @@
               "content": null,
               "tool_calls": [
                 {
-                  "id": "call_KRWkQftlBNtECVntHxIP20OO",
+                  "id": "call_VZz5v7VVDmPdEv9Ps0QMwzqe",
                   "type": "function",
                   "function": {
                     "name": "get_favorite_color_for_month",
@@ -97,7 +98,7 @@
           "completion_tokens": 19,
           "total_tokens": 94
         },
-        "system_fingerprint": "fp_48196bc67a"
+        "system_fingerprint": "fp_f905cf32a9"
       }
     },
     {
@@ -109,7 +110,7 @@
         "Content-Length": "807",
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2",
-        "User-Agent": "OpenAI/2.0.0-beta.8 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
+        "User-Agent": "OpenAI/2.0.0-beta.11 (.NET 8.0.8; Microsoft Windows 10.0.22631)",
         "x-ms-client-request-id": "Sanitized"
       },
       "RequestBody": {
@@ -119,21 +120,21 @@
             "content": "What's my favorite color in February?"
           },
           {
+            "role": "assistant",
             "tool_calls": [
               {
-                "id": "call_KRWkQftlBNtECVntHxIP20OO",
+                "id": "call_VZz5v7VVDmPdEv9Ps0QMwzqe",
                 "type": "function",
                 "function": {
                   "name": "get_favorite_color_for_month",
                   "arguments": "{\"month_name\":\"February\"}"
                 }
               }
-            ],
-            "role": "assistant"
+            ]
           },
           {
-            "tool_call_id": "call_KRWkQftlBNtECVntHxIP20OO",
             "role": "tool",
+            "tool_call_id": "call_VZz5v7VVDmPdEv9Ps0QMwzqe",
             "content": "chartreuse"
           }
         ],
@@ -162,14 +163,15 @@
       },
       "StatusCode": 200,
       "ResponseHeaders": {
+        "Access-Control-Expose-Headers": "X-Request-ID",
         "Alt-Svc": "h3=\":443\"",
         "CF-Cache-Status": "DYNAMIC",
-        "CF-RAY": "8b3f71ac9b121694-SJC",
+        "CF-RAY": "8be1561ed8b7176b-SJC",
         "Connection": "keep-alive",
         "Content-Type": "application/json",
-        "Date": "Fri, 16 Aug 2024 06:42:23 GMT",
+        "Date": "Wed, 04 Sep 2024 22:15:07 GMT",
         "openai-organization": "Sanitized",
-        "openai-processing-ms": "210",
+        "openai-processing-ms": "216",
         "openai-version": "2020-10-01",
         "Server": "cloudflare",
         "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -184,9 +186,9 @@
         "X-Request-ID": "Sanitized"
       },
       "ResponseBody": {
-        "id": "chatcmpl-9wkxCMtELawoiSvMOW0sb3nSK65zm",
+        "id": "chatcmpl-A3sZHjQZifUrT6Uwe0zHgOxhOiuI7",
         "object": "chat.completion",
-        "created": 1723790542,
+        "created": 1725488107,
         "model": "gpt-4o-mini-2024-07-18",
         "choices": [
           {
@@ -205,11 +207,11 @@
           "completion_tokens": 10,
           "total_tokens": 118
         },
-        "system_fingerprint": "fp_48196bc67a"
+        "system_fingerprint": "fp_f33667828e"
       }
     }
   ],
   "Variables": {
-    "RandomSeed": "1484461820"
+    "RandomSeed": "1066370482"
   }
 }
