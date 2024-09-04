@@ -1,45 +1,109 @@
-using OpenAI.Models;
+using OpenAI.Internal;
+using System;
+using System.ClientModel.Primitives;
+using System.ComponentModel;
 
 namespace OpenAI.Chat;
 
 /// <summary>
-/// Represents a requested <c>response_format</c> for the model to use, enabling "JSON mode" for guaranteed valid output.
+///     The format that the model should output.
+///     <list>
+///         <item>
+///             Call <see cref="CreateTextFormat()"/> to create a <see cref="ChatResponseFormat"/> requesting plain
+///             text.
+///         </item>
+///         <item>
+///             Call <see cref="CreateJsonObjectFormat()"/> to create a <see cref="ChatResponseFormat"/> requesting
+///             valid JSON, a.k.a. JSON mode.
+///         </item>
+///         <item>
+///             Call <see cref="CreateJsonSchemaFormat(string, BinaryData, string, bool?)"/> to create a
+///             <see cref="ChatResponseFormat"/> requesting adherence to the specified JSON schema,
+///             a.k.a. structured outputs.
+///         </item>
+///     </list>
 /// </summary>
-/// <remarks>
-/// <b>Important</b>: when using JSON mode, the model <b><u>must</u></b> also be instructed to produce JSON via a
-/// <c>system</c> or <c>user</c> message.
-/// <para>
-/// Without this paired, message-based accompaniment, the model may generate an unending stream of whitespace until the
-/// generation reaches the token limit, resulting in a long-running and seemingly "stuck" request.
-/// </para>
-/// <para>
-/// Also note that the message content may be partially cut off if <c>finish_reason</c> is <c>length</c>, which
-/// indicates that the generation exceeded <c>max_tokens</c> or the conversation exceeded the max context length for
-/// the model.
-/// </para>
-/// </remarks>
-[CodeGenModel("CreateChatCompletionRequestResponseFormat")]
-public partial class ChatResponseFormat
+[CodeGenModel("ChatResponseFormat")]
+public abstract partial class ChatResponseFormat : IEquatable<ChatResponseFormat>
 {
-    // CUSTOM: Made internal.
+    /// <summary> Creates a new <see cref="ChatResponseFormat"/> requesting plain text. </summary>
+    public static ChatResponseFormat Text { get; } = new InternalChatResponseFormatText();
 
-    /// <summary> Must be one of `text` or `json_object`. </summary>
-    [CodeGenMember("Type")]
-    internal InternalCreateChatCompletionRequestResponseFormatType? Type { get; set; }
+    /// <summary> Creates a new <see cref="ChatResponseFormat"/> requesting valid JSON, a.k.a. JSON mode. </summary>
+    public static ChatResponseFormat JsonObject { get; } = new InternalChatResponseFormatJsonObject();
 
-    // CUSTOM: Made internal.
-    /// <summary> Initializes a new instance of <see cref="ChatResponseFormat"/>. </summary>
-    internal ChatResponseFormat()
+    /// <summary> Creates a new <see cref="ChatResponseFormat"/> requesting plain text. </summary>
+    public static ChatResponseFormat CreateTextFormat() => new InternalChatResponseFormatText();
+
+    /// <summary> Creates a new <see cref="ChatResponseFormat"/> requesting valid JSON, a.k.a. JSON mode. </summary>
+    public static ChatResponseFormat CreateJsonObjectFormat() => new InternalChatResponseFormatJsonObject();
+
+    /// <summary>
+    ///     Creates a new <see cref="ChatResponseFormat"/> requesting adherence to the specified JSON schema,
+    ///     a.k.a. structured outputs.
+    /// </summary>
+    public static ChatResponseFormat CreateJsonSchemaFormat(string name, BinaryData jsonSchema, string description = null, bool? strictSchemaEnabled = null)
     {
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
+        Argument.AssertNotNull(jsonSchema, nameof(jsonSchema));
+
+        InternalResponseFormatJsonSchemaJsonSchema internalSchema = new(
+            description,
+            name,
+            jsonSchema,
+            strictSchemaEnabled,
+            serializedAdditionalRawData: null);
+
+        return new InternalChatResponseFormatJsonSchema(internalSchema);
     }
 
-    internal ChatResponseFormat(InternalCreateChatCompletionRequestResponseFormatType? type)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static bool operator ==(ChatResponseFormat first, ChatResponseFormat second)
     {
-        Type = type;
+        if (first is null)
+        {
+            return second is null;
+        }
+
+        return first.Equals(second);
     }
 
-    /// <summary> text. </summary>
-    public static ChatResponseFormat Text { get; } = new ChatResponseFormat(InternalCreateChatCompletionRequestResponseFormatType.Text);
-    /// <summary> json_object. </summary>
-    public static ChatResponseFormat JsonObject { get; } = new ChatResponseFormat(InternalCreateChatCompletionRequestResponseFormatType.JsonObject);
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static bool operator !=(ChatResponseFormat first, ChatResponseFormat second)
+        => !(first == second);
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override bool Equals(object obj)
+    {
+        return (this as IEquatable<ChatResponseFormat>).Equals(obj as ChatResponseFormat)
+            || ToString().Equals(obj?.ToString());
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override int GetHashCode() => ToString().GetHashCode();
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    bool IEquatable<ChatResponseFormat>.Equals(ChatResponseFormat other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (Object.ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return (this is InternalChatResponseFormatText && other is InternalChatResponseFormatText)
+            || (this is InternalChatResponseFormatJsonObject && other is InternalChatResponseFormatJsonObject)
+            || (this is InternalChatResponseFormatJsonSchema thisJsonSchema
+                    && other is InternalChatResponseFormatJsonSchema otherJsonSchema
+                    && thisJsonSchema.JsonSchema.Name.Equals(otherJsonSchema.JsonSchema.Name));
+    }
+
+    public override string ToString()
+    {
+        return ModelReaderWriter.Write(this).ToString();
+    }
 }

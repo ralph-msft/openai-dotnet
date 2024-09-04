@@ -74,7 +74,7 @@ namespace OpenAI.Assistants
                 return null;
             }
             InternalModifyThreadRequestToolResourcesCodeInterpreter codeInterpreter = default;
-            InternalModifyThreadRequestToolResourcesFileSearch fileSearch = default;
+            InternalToolResourcesFileSearchIdsOnly fileSearch = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
@@ -94,10 +94,10 @@ namespace OpenAI.Assistants
                     {
                         continue;
                     }
-                    fileSearch = InternalModifyThreadRequestToolResourcesFileSearch.DeserializeInternalModifyThreadRequestToolResourcesFileSearch(property.Value, options);
+                    fileSearch = InternalToolResourcesFileSearchIdsOnly.DeserializeInternalToolResourcesFileSearchIdsOnly(property.Value, options);
                     continue;
                 }
-                if (options.Format != "W")
+                if (true)
                 {
                     rawDataDictionary ??= new Dictionary<string, BinaryData>();
                     rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));

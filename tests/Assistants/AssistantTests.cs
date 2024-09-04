@@ -24,7 +24,7 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
     protected void Cleanup()
     {
         // Skip cleanup if there is no API key (e.g., if we are not running live tests).
-        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OPEN_API_KEY")))
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OPENAI_API_KEY")))
         {
             return;
         }
@@ -359,25 +359,24 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
         AssistantClient client = GetTestClient();
         Assistant assistant = client.CreateAssistant("gpt-4o-mini", new()
         {
-            ResponseFormat = AssistantResponseFormat.JsonObject,
+            ResponseFormat = AssistantResponseFormat.CreateAutoFormat(),
         });
         Validate(assistant);
-        Assert.That(assistant.ResponseFormat, Is.EqualTo(AssistantResponseFormat.JsonObject));
+        Assert.That(assistant.ResponseFormat == "auto");
         assistant = client.ModifyAssistant(assistant, new()
         {
-            ResponseFormat = AssistantResponseFormat.Text,
+            ResponseFormat = AssistantResponseFormat.CreateTextFormat(),
         });
-        Assert.That(assistant.ResponseFormat, Is.EqualTo(AssistantResponseFormat.Text));
+        Assert.That(assistant.ResponseFormat == AssistantResponseFormat.CreateTextFormat());
         AssistantThread thread = client.CreateThread();
         Validate(thread);
         ThreadMessage message = client.CreateMessage(thread, MessageRole.User, ["Write some JSON for me!"]);
         Validate(message);
         ThreadRun run = client.CreateRun(thread, assistant, new()
         {
-            ResponseFormat = AssistantResponseFormat.JsonObject,
+            ResponseFormat = AssistantResponseFormat.CreateJsonObjectFormat(),
         });
-        Validate(run);
-        Assert.That(run.ResponseFormat, Is.EqualTo(AssistantResponseFormat.JsonObject));
+        Assert.That(run.ResponseFormat == AssistantResponseFormat.CreateJsonObjectFormat());
     }
 
     [RecordedTest]
@@ -508,7 +507,11 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
     public async Task StreamingToolCall()
     {
         AssistantClient client = GetTestClient();
-        FunctionToolDefinition getWeatherTool = new("get_current_weather", "Gets the user's current weather");
+        FunctionToolDefinition getWeatherTool = new()
+        {
+            FunctionName = "get_current_weather",
+            Description = "Gets the user's current weather",
+        };
         Assistant assistant = await client.CreateAssistantAsync("gpt-4o-mini", new()
         {
             Tools = { getWeatherTool }
@@ -682,6 +685,67 @@ public class AssistantTests(bool isAsync) : OpenAiTestBase(isAsync)
         }
         Assert.That(messageCount > 1);
         Assert.That(hasCake, Is.True);
+    }
+
+    [Test]
+    public async Task BasicFileSearchStreamingWorks()
+    {
+        const string fileContent = """
+                The favorite food of several people:
+                - Summanus Ferdinand: tacos
+                - Tekakwitha Effie: pizza
+                - Filip Carola: cake
+                """;
+
+        const string fileName = "favorite_foods.txt";
+
+        FileClient fileClient = GetTestClient<FileClient>(TestScenario.Files);
+        AssistantClient client = GetTestClient<AssistantClient>(TestScenario.Assistants);
+
+        // First, upload a simple test file.
+        OpenAIFileInfo testFile = fileClient.UploadFile(BinaryData.FromString(fileContent), fileName, FileUploadPurpose.Assistants);
+        Validate(testFile);
+
+        // Create an assistant, using the creation helper to make a new vector store.
+        AssistantCreationOptions assistantCreationOptions = new()
+        {
+            Tools = { new FileSearchToolDefinition() },
+            ToolResources = new()
+            {
+                FileSearch = new()
+                {
+                    NewVectorStores = { new VectorStoreCreationHelper([testFile.Id]) }
+                }
+            }
+        };
+        Assistant assistant = client.CreateAssistant("gpt-4o-mini", assistantCreationOptions);
+        Validate(assistant);
+
+        Assert.That(assistant.ToolResources?.FileSearch?.VectorStoreIds, Has.Count.EqualTo(1));
+        string vectorStoreId = assistant.ToolResources.FileSearch.VectorStoreIds[0];
+        _vectorStoreIdsToDelete.Add(vectorStoreId);
+
+        // Create a thread.
+        ThreadCreationOptions threadCreationOptions = new()
+        {
+            InitialMessages = { "Using the files you have available, what's Filip's favorite food?" }
+        };
+        AssistantThread thread = client.CreateThread(threadCreationOptions);
+        Validate(thread);
+
+        // Create run and stream the results.
+        AsyncCollectionResult<StreamingUpdate> streamingResult = client.CreateRunStreamingAsync(thread.Id, assistant.Id);
+        string message = string.Empty;
+
+        await foreach (StreamingUpdate update in streamingResult)
+        {
+            if (update is MessageContentUpdate contentUpdate)
+            {
+                message += $"{contentUpdate.Text}";
+            }
+        }
+
+        Assert.That(message, Does.Contain("cake"));
     }
 
     [RecordedTest]

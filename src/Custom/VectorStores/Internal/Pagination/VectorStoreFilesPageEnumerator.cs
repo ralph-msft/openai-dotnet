@@ -23,10 +23,12 @@ internal partial class VectorStoreFilesPageEnumerator : PageEnumerator<VectorSto
 
     private string? _after;
 
+    public virtual ClientPipeline Pipeline => _pipeline;
+
     public VectorStoreFilesPageEnumerator(
         ClientPipeline pipeline,
         Uri endpoint,
-        string vectorStoreId, 
+        string vectorStoreId,
         int? limit, string? order, string? after, string? before, string? filter,
         RequestOptions options)
     {

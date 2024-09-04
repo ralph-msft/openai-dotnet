@@ -111,7 +111,7 @@ namespace OpenAI.Files
                 return null;
             }
             string id = default;
-            long? bytes = default;
+            int? bytes = default;
             DateTimeOffset createdAt = default;
             string filename = default;
             InternalOpenAIFileObject @object = default;
@@ -134,7 +134,7 @@ namespace OpenAI.Files
                         bytes = null;
                         continue;
                     }
-                    bytes = property.Value.GetInt64();
+                    bytes = property.Value.GetInt32();
                     continue;
                 }
                 if (property.NameEquals("created_at"u8))
@@ -167,7 +167,7 @@ namespace OpenAI.Files
                     statusDetails = property.Value.GetString();
                     continue;
                 }
-                if (options.Format != "W")
+                if (true)
                 {
                     rawDataDictionary ??= new Dictionary<string, BinaryData>();
                     rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));

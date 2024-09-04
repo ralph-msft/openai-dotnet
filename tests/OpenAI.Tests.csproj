@@ -1,8 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+
     <!--Ignore XML doc comments on test types and members-->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+   <!-- OPENAI001 - Ignore experimental warnings-->
+    <NoWarn>$(NoWarn);OPENAI001;</NoWarn>
+
     <LangVersion>latest</LangVersion>
     <TestProxyVersion>1.0.0-dev.20240619.2</TestProxyVersion>
   </PropertyGroup>
@@ -27,5 +32,10 @@
       <_Parameter1>TestProxyPath</_Parameter1>
       <_Parameter2>$(NuGetPackageRoot)\azure.sdk.tools.testproxy\$(TestProxyVersion)\tools\net6.0\any\Azure.Sdk.Tools.TestProxy.dll</_Parameter2>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\src\Utility\Telemetry\*.cs" LinkBase="Telemetry\Shared" />
+    <Compile Include="..\src\Utility\AppContextSwitchHelper.cs" LinkBase="Telemetry\Shared" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 [![NuGet version](https://img.shields.io/nuget/vpre/openai.svg)](https://www.nuget.org/packages/OpenAI/absoluteLatest)
 
-The OpenAI .NET library provides convenient access to the OpenAI REST API from .NET applications. 
+The OpenAI .NET library provides convenient access to the OpenAI REST API from .NET applications.
 
 It is generated from our [OpenAPI specification](https://github.com/openai/openai-openapi) in collaboration with Microsoft.
 
@@ -17,6 +17,7 @@ It is generated from our [OpenAPI specification](https://github.com/openai/opena
   - [Using the `OpenAIClient` class](#using-the-openaiclient-class)
 - [How to use chat completions with streaming](#how-to-use-chat-completions-with-streaming)
 - [How to use chat completions with tools and function calling](#how-to-use-chat-completions-with-tools-and-function-calling)
+- [How to use structured outputs](#how-to-use-structured-outputs)
 - [How to generate text embeddings](#how-to-generate-text-embeddings)
 - [How to generate images](#how-to-generate-images)
 - [How to transcribe audio](#how-to-transcribe-audio)
@@ -26,6 +27,7 @@ It is generated from our [OpenAPI specification](https://github.com/openai/opena
 - [Advanced scenarios](#advanced-scenarios)
   - [Using protocol methods](#using-protocol-methods)
   - [Automatically retrying errors](#automatically-retrying-errors)
+  - [Observability](#observability)
 
 ## Getting started
 
@@ -293,6 +295,60 @@ do
             throw new NotImplementedException(chatCompletion.FinishReason.ToString());
     }
 } while (requiresAction);
+```
+
+## How to use structured outputs
+
+Beginning with the `gpt-4o-mini`, `gpt-4o-mini-2024-07-18`, and `gpt-4o-2024-08-06` model snapshots, structured outputs are available for both top-level response content and tool calls in the chat completion and assistants APIs.
+
+For information about the feature, see [the Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs/introduction).
+
+To use structured outputs to constrain chat completion content, set an appropriate `ChatResponseFormat` as in the following example:
+
+```csharp
+ChatCompletionOptions options = new()
+{
+    ResponseFormat = ChatResponseFormat.CreateJsonSchemaFormat(
+        name: "math_reasoning",
+        jsonSchema: BinaryData.FromString("""
+            {
+                "type": "object",
+                "properties": {
+                "steps": {
+                    "type": "array",
+                    "items": {
+                    "type": "object",
+                    "properties": {
+                        "explanation": { "type": "string" },
+                        "output": { "type": "string" }
+                    },
+                    "required": ["explanation", "output"],
+                    "additionalProperties": false
+                    }
+                },
+                "final_answer": { "type": "string" }
+                },
+                "required": ["steps", "final_answer"],
+                "additionalProperties": false
+            }
+            """),
+    strictSchemaEnabled: true)
+};
+
+ChatCompletion chatCompletion = await client.CompleteChatAsync(
+    ["How can I solve 8x + 7 = -23?"],
+    options);
+
+using JsonDocument structuredJson = JsonDocument.Parse(chatCompletion.ToString());
+        
+Console.WriteLine($"Final answer: {structuredJson.RootElement.GetProperty("final_answer").GetString()}");
+Console.WriteLine("Reasoning steps:");
+
+foreach (JsonElement stepElement in structuredJson.RootElement.GetProperty("steps").EnumerateArray())
+{
+    Console.WriteLine($"  - Explanation: {stepElement.GetProperty("explanation").GetString()}");
+    Console.WriteLine($"    Output: {stepElement.GetProperty("output")}");
+}
 ```
 
 ## How to generate text embeddings
@@ -714,7 +770,7 @@ For example, to use the protocol method variant of the `ChatClient`'s `CompleteC
 ChatClient client = new("gpt-4o", Environment.GetEnvironmentVariable("OPENAI_API_KEY"));
 
 BinaryData input = BinaryData.FromBytes("""
-{  
+{
     "model": "gpt-4o",
     "messages": [
        {
@@ -749,3 +805,7 @@ By default, the client classes will automatically retry the following errors up 
 - 502 Bad Gateway
 - 503 Service Unavailable
 - 504 Gateway Timeout
+
+### Observability
+
+OpenAI .NET library supports experimental distributed tracing and metrics with OpenTelemetry. Check out [Observability with OpenTelemetry](./docs/observability.md) for more details.
